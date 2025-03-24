@@ -22,7 +22,7 @@ function ProfilePage() {
 
   return (
     <div className="flex justify-center min-h-screen bg-gray-50">
-      <div className="w-[450px] rounded-lg shadow-md border border-gray-300 overflow-hidden">
+      <div className="w-[400px] rounded-lg shadow-md border border-gray-300 overflow-hidden">
         <div className="bg-white p-4">
           <h2 className="text-2xl font-bold">Account Settings</h2>
         </div>
