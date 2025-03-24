@@ -1,22 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera } from "lucide-react";
 import profilePic from "../utils/images/profile.jpg";
 
 function ProfilePage() {
   const navigate = useNavigate();
-  const [profileImage, setProfileImage] = useState(profilePic);
+  const [userData, setUserData] = useState({});
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("userData"));
+    const isAuthenticated = localStorage.getItem("isAuthenticated");
+
+    if (!storedUser || isAuthenticated !== "true") {
+      navigate("/login"); // Redirect if not logged in
+    } else {
+      setUserData(storedUser);
+    }
+  }, [navigate]);
 
   // Handle image selection
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl);
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const updatedUser = { ...userData, profileImage: reader.result };
+      setUserData(updatedUser);
+      localStorage.setItem("userData", JSON.stringify(updatedUser));
+    };
+    reader.readAsDataURL(file);
   };
 
   const onClickHanlder = (event) => {
+    localStorage.removeItem("isAuthenticated"); // Clear authentication state
     navigate("/");
   };
 
@@ -31,7 +48,7 @@ function ProfilePage() {
           <div className="flex items-center gap-4">
             <div className="relative w-20 h-20">
               <img
-                src={profileImage}
+                src={userData.profileImage || profilePic}
                 alt="Profile"
                 className="w-20 h-20 rounded-full border-2 border-gray-300 object-cover"
               />
@@ -50,8 +67,12 @@ function ProfilePage() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold">Marry Doe</h3>
-              <p className="text-black">Marry@Gmail.Com</p>
+              <h3 className="text-lg font-semibold">
+                {userData.name || "Aditya Singh"}
+              </h3>
+              <p className="text-black">
+                {userData.email || "adityasingh@gmail.com"}
+              </p>
             </div>
           </div>
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import profilePic from "../utils/images/profile.jpg";
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -64,6 +65,19 @@ function SignupPage() {
     e.preventDefault();
     if (validateForm()) {
       console.log("Form Submitted:", formData);
+
+      // Store user data in localStorage (PERSISTENT)
+      const userData = {
+        name: formData.fullName,
+        phoneNumber: formData.phoneNumber,
+        email: formData.email,
+        password: formData.password,
+        profileImage: profilePic,
+      };
+      localStorage.setItem("userData", JSON.stringify(userData));
+
+      // Save authentication state
+      localStorage.setItem("isAuthenticated", "true");
 
       // Reset form
       setFormData({

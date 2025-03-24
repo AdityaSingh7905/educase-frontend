@@ -1,11 +1,11 @@
-"use client";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
 
   const validateEmail = (email) => {
@@ -13,28 +13,51 @@ function LoginPage() {
     return re.test(email);
   };
 
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (!email.trim()) newErrors.email = "Email is required";
+    else if (!validateEmail(email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    if (!password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleLogin = (e) => {
     e.preventDefault();
-    setError("");
 
-    if (!email || !password) {
-      setError("Email and Password are required.");
-      return;
+    if (validateForm()) {
+      // Simulate successful login
+      console.log("Login successful!");
+
+      // Retrieve user data from localStorage
+      const storedUser = JSON.parse(localStorage.getItem("userData"));
+
+      if (
+        !storedUser ||
+        storedUser.email !== email ||
+        storedUser.password !== password
+      ) {
+        setLoginError("Invalid email or password.");
+        return;
+      }
+
+      // Save authentication state
+      localStorage.setItem("isAuthenticated", "true");
+
+      //Reset form
+      setEmail("");
+      setPassword("");
+
+      navigate("/profile"); // Navigate to Profile Page
     }
-
-    if (!validateEmail(email)) {
-      setError("Invalid email format.");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-
-    // Simulate successful login
-    console.log("Login successful!");
-    navigate("/profile"); // Navigate to Profile Page
   };
 
   return (
@@ -46,6 +69,10 @@ function LoginPage() {
         <p className="text-lg text-gray-500 text-center">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit
         </p>
+
+        {loginError && (
+          <p className="text-red-500 text-sm mt-1">{loginError}</p>
+        )}
 
         <form className="space-y-5" onSubmit={handleLogin}>
           <div className="relative">
@@ -62,6 +89,9 @@ function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full p-3 mt-4 bg-gray-50 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
 
           <div className="relative">
@@ -79,7 +109,9 @@ function LoginPage() {
               className="w-full p-3 mt-4 bg-gray-50 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
-          {error && <p className="text-red-500 text-center">{error}</p>}
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+          )}
           <button
             type="submit"
             className="w-full bg-purple-600 font-bold text-white py-3 rounded-md mt-2 hover:bg-purple-700"
